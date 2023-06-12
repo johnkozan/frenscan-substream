@@ -1,11 +1,12 @@
+---
 specVersion: v0.1.0
 package:
-  name: "substreams_template"
+  name: "frenscan_substream"
   version: v0.1.0
 
 protobuf:
   files:
-    - erc721.proto
+    - frenscan.proto
   importPaths:
     - ./proto
 
@@ -15,18 +16,18 @@ binaries:
     file: ./target/wasm32-unknown-unknown/release/substreams.wasm
 
 modules:
-  - name: map_transfers
+  - name: map_blocks
     kind: map
-    initialBlock: 12287507
+    initialBlock: 12905459    # Updated by set_initial_block.sh
     inputs:
       - source: sf.ethereum.type.v2.Block
     output:
-      type: proto:eth.erc721.v1.Transfers
+      type: proto:frenscan.types.v1.Transfers
 
-  - name: store_transfers
-    kind: store
-    initialBlock: 12287507
-    updatePolicy: add
-    valueType: int64
+  - name: db_out
+    kind: map
+    initialBlock: 12905459    # Updated by set_initial_block.sh
     inputs:
-      - map: map_transfers
+      - map: map_blocks
+    output:
+      type: proto:sf.substreams.sink.database.v1.DatabaseChanges

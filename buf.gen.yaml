@@ -1,0 +1,12 @@
+version: v1
+plugins:
+  - name: prost
+    out: src/pb
+    opt:
+      - bytes=.
+      - file_descriptor_set=false
+      - type_attribute=.frenscan.types.v1.TokenTransfer=#[derive(::serde::Serialize)]
+      - type_attribute=.frenscan.types.v1.Tx=#[derive(::serde::Serialize)]
+      - type_attribute=.frenscan.types.v1.CallTrace=#[derive(::serde::Serialize)]
+      - field_attribute=.frenscan.types.v1.CallTrace.executed_code=#[serde(skip_serializing_if = "std::ops::Not::not")]
+      - field_attribute=.frenscan.types.v1.CallTrace.suicide=#[serde(skip_serializing_if = "std::ops::Not::not")]

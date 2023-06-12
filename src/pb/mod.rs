@@ -1,3 +1,7 @@
-#[path = "eth.erc721.v1.rs"]
+#[path = "frenscan.types.v1.rs"]
 #[allow(dead_code)]
-pub mod erc721;
+mod frenscan_priv;
+
+pub mod frenscan {
+    pub use super::frenscan_priv::*;
+}

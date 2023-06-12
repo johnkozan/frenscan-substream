@@ -1,6 +1,8 @@
 .vscode
 .idea
 .DS_Store
-buf.gen.yaml
 /target
 *.spkg
+src/settings/*.rs
+frens.yaml
+schema_settings.sql

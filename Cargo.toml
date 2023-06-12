@@ -1,9 +1,9 @@
 [package]
-name = "substreams-template"
+name = "frenscan-substream"
 version = "0.1.0"
-description = "Substream template demo project"
+description = "A Substream to track Ethereum and Token balances for a group of accounts"
 edition = "2021"
-repository = "https://github.com/streamingfast/substreams-template"
+repository = "https://github.com/johnkozan/frenscan-substream"
 license = "Apache 2.0"
 
 [lib]
@@ -11,14 +11,17 @@ name = "substreams"
 crate-type = ["cdylib"]
 
 [dependencies]
-num-bigint = "0.4.3"
 ethabi = "17"
 hex-literal = "0.3.4"
+lazy_static = "1.4.0"
 prost = "0.11"
-# Use latest from https://crates.io/crates/substreams
-substreams = "0.5"
-# Use latest from https://crates.io/crates/substreams-ethereum
-substreams-ethereum = "0.9.0"
+substreams = "0.5.10"
+substreams-database-change = "1.2.1"
+substreams-ethereum = "0.9.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.9"
+num-bigint = "0.4"
 
 # Required so that ethabi > ethereum-types build correctly under wasm32-unknown-unknown
 [target.wasm32-unknown-unknown.dependencies]
@@ -26,7 +29,11 @@ getrandom = { version = "0.2", features = ["custom"] }
 
 [build-dependencies]
 anyhow = "1"
-substreams-ethereum = "0.9.0"
+indoc = "2"
+lazy_static = "1.4.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+substreams-ethereum = "0.9.4"
 
 [profile.release]
 lto = true

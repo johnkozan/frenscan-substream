@@ -1,104 +1,77 @@
-# StreamingFast Substreams Template
+# Frenscan Substream
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-## Quick Start (Gitpod)
+A DAO focused blockchain explorer, built on [StreamingFast Substreams](https://substreams.streamingfast.io/).
 
-Use these steps to conveniently open your repository in a Gitpod.
-
-1. First, [copy this repository](https://github.com/streamingfast/substreams-template/generate)
-2. Grab a StreamingFast key from [https://app.streamingfast.io/](https://app.streamingfast.io/)
-3. Create a [Gitpod](https://gitpod.io) account
-4. Configure a `STREAMINGFAST_KEY` variable in your Gitpod account settings
-5. Open your repository as a [Gitpod workspace](https://gitpod.io/workspaces)
-
-## Quick Start (Locally)
-
-Use this quickstart guide to set up your environment to use Substreams locally.
-
-First, [copy this repository](https://github.com/streamingfast/substreams-template/generate) and clone it.
 
 ## Install Dependencies
 
-Follow [Installation Requirements](https://substreams.streamingfast.io/developer-guide/installation-requirements#local-installation) instructions on official Substreams documentation wesite.
+1. [Install `substreams` cli](https://substreams.streamingfast.io/getting-started/installing-the-cli)
+2. [Install postgres sink](https://substreams.streamingfast.io/developers-guide/sink-targets/substreams-sink-postgres)
+3. Optionally install Docker and `docker-compose` to run a PostresQL database container.
 
-### Validation
+## Quick Start
 
-Ensure that `substreams` CLI works as expected:
-
-```
-substreams -v
-version (...)
-```
-
-## Generating Protobuf
-
+1. [Obtain a StreamingFast API Key](https://substreams.streamingfast.io/reference-and-specs/authentication) and set the `SUBSTREAMS_API_TOKEN`
+   with the `sftoken` command.
+2. Create a `frens.yaml` file to define the DAO to be indexed, or copy one from the `examples/` directory.  See `frens.yaml` section for specification.
 ```bash
-substreams protogen ./substreams.yaml --exclude-paths="sf/substreams,google"
+cp examples/citydao.yaml ./frens.yaml
 ```
-
-## Compile
-
-At this point, we're ready to build our WASM binary and Protobuf definitions.
-
+3. Start the database:
 ```bash
-cargo build --target wasm32-unknown-unknown --release
+docker-compose up
 ```
-
-The resulting WASM artifact will be found at `./target/wasm32-unknown-unknown/release/substreams.wasm`
-
-## Run your Substream
-
-We're now ready to run our example Substream!
-
-> Don't forget to be at the root of the project to run the following commands
-
+4. Build the substream:
 ```bash
-# to run the map module
-substreams run -e mainnet.eth.streamingfast.io:443 substreams.yaml map_transfers --start-block 12292922 --stop-block +1
-
-# to run the store module (and the map module in the background)
-substreams run -e mainnet.eth.streamingfast.io:443 substreams.yaml store_transfers --start-block 12292922 --stop-block +1
+make build
 ```
-
-Let's break down everything happening above.
-
-- `substreams` is our executable
-- `-e mainnet.eth.streamingfast.io:443` is the provider going to run our Substreams
-- `substream.yaml` is the path where we have defined our Substreams Manifest
-- `map_transfers` (or `store_transfers`) this is the module which we want to run, defined in the manifest
-- `--start-block 12292922` start from block `12292922`
-- `--stop-block +1` only request a single block (stop block will be manifest's start block + 1)
-
-Here is the example of an output of the `map_transfers` starting at `12292922` block for only `1` block.
-The `[...]` was added to abbreviate the JSON output as there was a lot of ERC20 transfers.
-
+5. Prepare the database:
 ```bash
------------ IRREVERSIBLE BLOCK #12,292,922 (12292922) ---------------
-map_transfers: message "eth.erc721.v1.Transfers": {
-  "transfers": [
-    {
-      "from": "AAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-      "to": "q6cWGn+2nIjhbtn0Vc5it5HuTQM=",
-      "trxHash": "z7GX9i7Fx/DnGhHsDEoOOUo6pB21OG6FUm+GyEs/J5Y=",
-      "ordinal": "85"
-    },
-    <continued>,
-    {
-      "from": "AAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-      "to": "q6cWGn+2nIjhbtn0Vc5it5HuTQM=",
-      "tokenId": "29",
-      "trxHash": "z7GX9i7Fx/DnGhHsDEoOOUo6pB21OG6FUm+GyEs/J5Y=",
-      "ordinal": "114"
-    }
-  ]
-}
+make setup_postgres
+```
+6. Start indexing:
+```bash
+make sink_postgres
 ```
 
-> Bytes are rendered with base64 encoding by default, so it might be a little troubling to see `q6cWGn+2nIjhbtn0Vc5it5HuTQM=` as an Ethereum address, but it's actually `aba7161a7fb69c88e16ed9f455ce62b791ee4d03`, you can use `string` instead of `bytes` if you prefer that in your Protobuf definitions.
 
-## Next Steps
+## frens.yaml
 
-Congratulations! You've successfully run a Substreams.
+**WARNING** This project is a work in progress and the file format is subject to change
 
-- Read the documentation at https://substreams.streamingfast.io.
-- Look at [Playground](https://github.com/streamingfast/substreams-playground) for more learning examples.
+
+`frens.yaml` is a file which enumerates all of the Ethereum accounts belonging to a dApp or DAO.
+The file has two main sections: `treasury_accounts` and `tokens_issued`.  
+
+
+```yaml
+---
+version: 0.1.0                 # frens.yaml specification version
+name: DAO Name
+treasury_accounts:
+  - name: Treasury account
+    address: 0x........
+    network: mainnet           # Optional, defaults to mainnet
+tokens_issued:
+  - name: DAO Token
+    address: 0x.......
+    network: mainnet           # Optional, defaults to mainnet
+    schema: erc20              # Supported: erc20, erc721, erc1155
+
+
+```
+
+## Issues / Current limitations
+
+* This substream was written before StreamingFast released the [ETH Balance changes substream](https://github.com/streamingfast/substreams-eth-balance-changes)
+  and [ERC20 Balance change substream](https://streamingfastio.medium.com/erc-20-balance-changes-substreams-73f1b6730c80).
+  This substream will be re-written to take adavantage of these.
+* There is no UI for the substream data at this time.
+* Only one network is currently supported
+* Roll-back of forked blocks in not currently supported.  The postgres-sink tails the chain head by 12 blocks in order to avoid forks.
+
+
+## License
+
+Apache

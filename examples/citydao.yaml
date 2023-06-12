@@ -1,0 +1,23 @@
+---
+name: CityDAO
+tokens_issued:
+- name: CityDAO Citizen
+  address: '0x7eef591a6cc0403b9652e98e88476fe1bf31ddeb'
+  initial_block: 13533149
+  token_id: 42
+- name: CityDAO Founding Citizen
+  address: '0x7eef591a6cc0403b9652e98e88476fe1bf31ddeb'
+  initial_block: 13533149
+  token_id: 69
+- name: CityDAO First Citizen
+  address: '0x7eef591a6cc0403b9652e98e88476fe1bf31ddeb'
+  initial_block: 13533149
+  token_id: 7
+treasury_accounts:
+- name: Multisig
+  address: '0x60e7343205c9c88788a22c40030d35f9370d302d'
+  initial_block: 12905459
+- name: Citizen NFT
+  address: '0x7eef591a6cc0403b9652e98e88476fe1bf31ddeb'
+  initial_block: 13533149
+version: 0.1.0
